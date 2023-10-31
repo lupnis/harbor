@@ -4,7 +4,7 @@ import json
 
 
 class ConfigHandler:
-    def __init__(self, config_path, root_key=None, not_exists_callback = None):
+    def __init__(self, config_path, root_key=None, not_exists_callback=None):
         self.config_path = str(Path(config_path).absolute())
         self.restore_callback = not_exists_callback
         self.root_key = root_key
@@ -17,7 +17,7 @@ class ConfigHandler:
             if self.restore_callback is not None:
                 self.config_instance = self.restore_callback()
             self.save()
-            
+
         with open(self.config_path, "r") as f:
             self.config_instance = json.loads(f.read())
 

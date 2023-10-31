@@ -1,6 +1,7 @@
 import utils.redis_ops as rops
 import os
 
+
 def gen_file_code_valid_countdown_str(file_code):
     return f"fs:cd:{file_code}"  # xxxxxxxx:5
 
@@ -59,17 +60,13 @@ def get_file_info(redis_entity, file_code):
 
 def record_download(redis_entity, file_code, path):
     ttl = redis_entity.db_instance.ttl(gen_file_code_valid_countdown_str(file_code))
-    if ttl ==-2:
+    if ttl == -2:
         remove_file(redis_entity, file_code, path)
         return
     elif ttl <= 0:
         return
-    
-    rops.minus1(
-        redis_entity,
-        gen_file_code_valid_countdown_str(file_code),
-        ttl
-    )
+
+    rops.minus1(redis_entity, gen_file_code_valid_countdown_str(file_code), ttl)
     if int(redis_entity.get(gen_file_code_valid_countdown_str(file_code))) <= 0:
         remove_file(redis_entity, file_code, path)
 

@@ -25,6 +25,16 @@ hash_generator = None
 
 
 class FileUploadController(RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "POST,OPTIONS")
+        self.set_header("Access-Control-Allow-Headers", "Content-Type")
+
+    async def options(self):
+        self.set_status(200)
+        self.finish()
+        return
+
     async def post(self):
         # record visit
         visit_from = self.request.remote_ip
@@ -101,6 +111,10 @@ class FileUploadController(RequestHandler):
             datetime.datetime.now().strftime("%d")
             + hash_generator.generate(file_hash_name)[:6]
         )
+        
+        file_path = os.path.join(storage_path_root, file_hash_name + ".hashed")
+        async with aiofiles.open(file_path, "wb") as f:
+            await f.write(file_doc["body"])
         fctrl.register_file(
             redis_entity,
             file_ori_name,
@@ -109,9 +123,6 @@ class FileUploadController(RequestHandler):
             file_down_limit,
             file_time_limit,
         )
-        file_path = os.path.join(storage_path_root, file_hash_name + ".hashed")
-        async with aiofiles.open(file_path, "wb") as f:
-            await f.write(file_doc["body"])
         self.set_status(200)
         self.write(
             mft.gen_message(
@@ -128,6 +139,11 @@ class FileUploadController(RequestHandler):
 
 
 class FileDownloadController(RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET, POST")
+        self.set_header("Access-Control-Allow-Headers", "Content-Type")
+
     async def post(self):
         visit_from = self.request.remote_ip
         if vctrl.visit_control(config_handler_ts, redis_entity, visit_from) == False:
@@ -162,7 +178,8 @@ class FileDownloadController(RequestHandler):
         fsize = fmodified = None
         try:
             fsize = os.path.getsize(file_path)
-            fmodified = time.ctime(os.path.getmtime(file_path))
+            fmodified = datetime.datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y/%m/%d')
+            print(fmodified)
         except:
             ...
 
@@ -171,7 +188,7 @@ class FileDownloadController(RequestHandler):
             mft.gen_message(
                 200,
                 "OK.",
-                {"file_name": url_escape(filename), "upload": fmodified, "size": fsize},
+                {"file_name": url_escape(filename, False), "upload": fmodified, "size": fsize},
             )
         )
         self.finish()
@@ -217,7 +234,7 @@ class FileDownloadController(RequestHandler):
         try:
             async with aiofiles.open(file_path, "rb") as f:
                 while True:
-                    c = await f.read()
+                    c = await f.read(10737418240)
                     if not c:
                         break
                     self.write(c)
@@ -261,5 +278,5 @@ def FileServer(config_ts, config_fs, general_config_handler):
             # ),
         ]
     )
-    http_server = tornado.httpserver.HTTPServer(app)
+    http_server = tornado.httpserver.HTTPServer(app, max_buffer_size = config_handler_fs.get("upload_size_limit", 33554432))
     return http_server

@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     tornado.options.parse_command_line()
 
-    http_server_t.listen(ts_config_handler.get('listen_port', 9001))
-    http_server_f.listen(fs_config_handler.get('listen_port', 9002))
+    http_server_t.listen(ts_config_handler.get("listen_port", 9001))
+    http_server_f.listen(fs_config_handler.get("listen_port", 9002))
     instance = tornado.ioloop.IOLoop.instance()
     instance.start()

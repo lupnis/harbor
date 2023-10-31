@@ -38,7 +38,7 @@ def ip_peasant(redis_entity, ip):
 
 def in_whitelist(config_handler, ip):
     whitelist = config_handler.get("whitelist", [])
-    return (ip in whitelist)
+    return ip in whitelist
 
 
 def add_ticket(redis_entity, ip, ticket, expire=None):

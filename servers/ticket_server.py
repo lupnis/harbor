@@ -19,6 +19,11 @@ ticket_generator = None
 
 
 class TicketProvidingController(RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET, POST")
+        self.set_header("Access-Control-Allow-Headers", "Content-Type")
+
     def post(self):
         visit_from = self.request.remote_ip
         if vctrl.visit_control(config_handler_ts, redis_entity, visit_from) == False:
@@ -55,6 +60,11 @@ class TicketProvidingController(RequestHandler):
 
 
 class TicketDestoryController(RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET, POST")
+        self.set_header("Access-Control-Allow-Headers", "Content-Type")
+
     def post(self):
         visit_from = self.request.remote_ip
         if vctrl.visit_control(config_handler_ts, redis_entity, visit_from) == False:
@@ -84,6 +94,11 @@ class TicketDestoryController(RequestHandler):
 
 
 class TicketManageController(RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET, POST")
+        self.set_header("Access-Control-Allow-Headers", "Content-Type")
+
     def get(self):
         visit_from = self.request.remote_ip
 
