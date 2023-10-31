@@ -1,4 +1,4 @@
 # harbor
 quick drop and download somewhere else
 
-only server, web page under construction
+v1.0.0 finished!
